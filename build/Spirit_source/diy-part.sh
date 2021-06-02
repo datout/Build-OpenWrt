@@ -1,6 +1,8 @@
 #!/bin/bash
 # Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
 #
+# DIY扩展二合一了，在此处可以增加插件
+#
 
 sed -i "/uci commit fstab/a\uci commit network" $ZZZ
 sed -i "/uci commit network/i\uci set network.lan.ipaddr='192.168.2.2'" $ZZZ                              # IPv4 地址(openwrt后台地址)
@@ -17,14 +19,14 @@ echo "281677160 Compiled in $(TZ=UTC-8 date "+%Y.%m.%d")" > package/base-files/f
 
 sed -i "/uci commit system/i\uci set system.@system[0].hostname='OpenWrt-123'" $ZZZ                       # 修改主机名称为OpenWrt-123
 
-sed -i 's/$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0/$1$PhflQnJ1$yamWfH5Mphs4hXV7UXWQ21:18725/g' $ZZZ           # 替换密码（要替换密码就不能设置密码为空）
+#sed -i 's/$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0/$1$PhflQnJ1$yamWfH5Mphs4hXV7UXWQ21:18725/g' $ZZZ          # 替换密码（要替换密码就不能设置密码为空）
 
-#sed -i '/CYXluq4wUazHjmCDBCqXF/d' $ZZZ                                                                   # 设置密码为空
+sed -i '/CYXluq4wUazHjmCDBCqXF/d' $ZZZ                                                                    # 设置密码为空
 
 #sed -i 's/PATCHVER:=5.4/PATCHVER:=4.19/g' target/linux/x86/Makefile                                      # 修改内核版本为4.19
 
 
-# 修改插件名字（修改名字后不知道会不会对插件功能有影响，自己多测试）
+# 修改插件名字
 sed -i 's/"aMule设置"/"电驴下载"/g' `grep "aMule设置" -rl ./`
 sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"Turbo ACC 网络加速"/"网络加速"/g' `grep "Turbo ACC 网络加速" -rl ./`

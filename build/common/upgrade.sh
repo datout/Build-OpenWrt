@@ -57,7 +57,7 @@ GET_TARGET_INFO() {
 	;;
 	"openwrt-18.06")
 		COMP1="immortalwrt-18.06"
-		COMP2="ctcgfw"
+		COMP2="project"
 		ZUOZHE="ctcgfw"
 		if [[ "${TARGET_PROFILE}" == "x86-64" ]]; then
 			Up_Firmware="immortalwrt-x86-64-combined-squashfs.${Firmware_sfxo}"
@@ -75,8 +75,8 @@ GET_TARGET_INFO() {
 		fi
 	;;
 	"openwrt-21.02")
-		COMP1="immortalwrt-21.02"
-		COMP2="project"
+		COMP1="ctcgfw-21.02"
+		COMP2="Spirit"
 		ZUOZHE="ctcgfw"
 		if [[ "${TARGET_PROFILE}" == "x86-64" ]]; then
 			Up_Firmware="immortalwrt-x86-64-generic-squashfs-combined.${Firmware_sfxo}"

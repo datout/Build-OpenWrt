@@ -15,8 +15,8 @@ on:
         default: 'ssh-actions'
 
 #定时触发开始编译(把下面两个#去掉开启,时间设置请看定时编译说明)
-  schedule:
-    - cron: 0 6 * * 6
+#  schedule:
+#    - cron: 0 6 * * 6
 
 env:
   Github: https://github.com/${{github.repository}}
@@ -63,9 +63,8 @@ jobs:
         echo "Updete_firmware=${Updete_firmware}" >> $GITHUB_ENV
         echo "Extension=${Extension}" >> $GITHUB_ENV
 
-    - name: 公 告
+    - name: 整理脚本
       run: |
-        echo
         chmod -R +x "${GITHUB_WORKSPACE}/build/common"
         if [[ "${REPO_BRANCH}" == "master" ]]; then
           echo "ZZZ=package/lean/default-settings/files/zzz-default-settings" >> $GITHUB_ENV
@@ -83,11 +82,6 @@ jobs:
           echo "ZZZ=package/emortal/default-settings/files/zzz-default-settings" >> $GITHUB_ENV
           echo "CODE=Spirit" >> $GITHUB_ENV
           echo "OpenWrt_name=21.02" >> $GITHUB_ENV
-        fi
-        if [ -n "$(ls -A build/common/0602gg 2>/dev/null)" ]; then
-          source build/common/common.sh && Diy_gonggao
-        else
-          source build/common/common.sh && Diy_tongzhi
         fi
 
     - name: 微信通知

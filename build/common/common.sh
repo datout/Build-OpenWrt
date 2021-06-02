@@ -100,7 +100,8 @@ sed -i "/exit 0/i\chmod +x /etc/webweb.sh && source /etc/webweb.sh > /dev/null 2
 ################################################################################################################
 Diy_all() {
 
-git clone --depth 1 -b "${REPO_BRANCH}" https://github.com/281677160/openwrt-package && cp -Rf openwrt-package/* "${Home}"
+git clone --depth 1 -b "${REPO_BRANCH}" https://github.com/281677160/openwrt-package
+cp -Rf openwrt-package/* "${Home}" && rm -rf "${Home}"/openwrt-package
 
 mv "${PATH1}"/AutoBuild_Tools.sh package/base-files/files/bin
 

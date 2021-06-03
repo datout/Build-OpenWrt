@@ -37,7 +37,7 @@ jobs:
       matrix:
         target: [Lede_source,Lienol_source,Project_source,Spirit_source]
 
-        # [Lede_source,Lienol_source,Project_source,Spirit_source]
+        # [Lede_source]
 
     steps:
     - name: 准备结束
@@ -296,6 +296,15 @@ jobs:
         token: ${{ secrets.REPO_TOKEN }}
         bodyFile: "update_log.txt"
         artifacts: "${{ env.FIRMWARE }}/*"
+        
+    - name: 电报机器人信息通知
+      run: |
+        if [[ "${BOT}" == "TRUE" ]]; then
+          if [[ "${SERVERCHAN_SCKEY}" == "true" ]]; then
+            curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=我亲爱的✨主人✨：
+            您使用【${{matrix.target}}】文件夹编译的[${{ env.NAME2 }}-${{ env.NAME1 }}]固件(${CangKu}仓库的#${Run_number}号)顺利编译完成了！💐" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+          fi
+        fi        
     
     - name: 微信通知
       uses: emon100/Action-Serverchan@v2

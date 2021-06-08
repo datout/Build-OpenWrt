@@ -31,19 +31,11 @@ find . -name 'luci-app-netdata' -o -name 'luci-theme-argon' -o -name 'k3screenct
 
 sed -i 's/iptables -t nat/# iptables -t nat/g' "${ZZZ}"
 
-if [[ "${REPO_BRANCH}" == "master" ]]; then
-	sed -i '/IMAGES_GZIP/d' "${PATH1}/${CONFIG_FILE}" > /dev/null 2>&1
-	echo -e "\nCONFIG_TARGET_IMAGES_GZIP=y" >> "${PATH1}/${CONFIG_FILE}"
-fi
-if [ -n "$(ls -A "target/linux/sunxi/base-files/etc/board.d/01_leds" 2>/dev/null)" ]; then
-	chmod -R +x target/linux/sunxi/base-files/etc/board.d/01_leds
-fi
+sed -i '/IMAGES_GZIP/d' "${PATH1}/${CONFIG_FILE}" > /dev/null 2>&1
+echo -e "\nCONFIG_TARGET_IMAGES_GZIP=y" >> "${PATH1}/${CONFIG_FILE}"
 
 git clone https://github.com/fw876/helloworld package/luci-app-ssr-plus
 git clone https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
-git clone https://github.com/jerrykuku/luci-app-vssr package/luci-app-vssr
-svn co  https://github.com/vernesong/OpenClash/trunk feeds/luci/luci-app-openclash > /dev/null 2>&1
-git clone https://github.com/frainzy1477/luci-app-clash package/luci-app-clash
 
 sed -i "/exit 0/i\chmod +x /etc/webweb.sh && source /etc/webweb.sh > /dev/null 2>&1" package/base-files/files/etc/rc.local
 }
@@ -58,9 +50,6 @@ find . -name 'luci-app-netdata' -o -name 'luci-theme-argon' | xargs -i rm -rf {}
 
 git clone https://github.com/fw876/helloworld package/luci-app-ssr-plus
 git clone https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
-git clone https://github.com/jerrykuku/luci-app-vssr package/luci-app-vssr
-svn co  https://github.com/vernesong/OpenClash/trunk feeds/luci/luci-app-openclash > /dev/null 2>&1
-git clone https://github.com/frainzy1477/luci-app-clash package/luci-app-clash
 
 curl -fsSL https://raw.githubusercontent.com/281677160/AdGuardHome/main/luci-app-adguardhome/root/etc/config/AdGuardHome.yaml > package/diy/luci-app-adguardhome/root/etc/config/AdGuardHome.yaml
 curl -fsSL https://raw.githubusercontent.com/281677160/AdGuardHome/main/luci-app-adguardhome/po/zh-cn/AdGuardHome.po > package/diy/luci-app-adguardhome/po/zh-cn/AdGuardHome.po
@@ -108,7 +97,7 @@ cp -Rf openwrt-package/* "${Home}" && rm -rf "${Home}"/openwrt-package
 mv "${PATH1}"/AutoBuild_Tools.sh package/base-files/files/bin
 
 if [[ ${REGULAR_UPDATE} == "true" ]]; then
-	svn co https://github.com/281677160/luci-app-autoupdate/trunk feeds/luci/applications/luci-app-autoupdate > /dev/null 2>&1
+	git clone https://github.com/281677160/luci-app-autoupdate feeds/luci/applications/luci-app-autoupdate
 	mv "${PATH1}"/AutoUpdate.sh package/base-files/files/bin
 fi
 

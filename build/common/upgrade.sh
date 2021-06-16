@@ -6,7 +6,7 @@
 GET_TARGET_INFO() {
         TARGET_BOARD="$(awk -F '[="]+' '/TARGET_BOARD/{print $2}' .config)"
         TARGET_SUBTARGET="$(awk -F '[="]+' '/TARGET_SUBTARGET/{print $2}' .config)"
-	[ -f ${GITHUB_WORKSPACE}/Openwrt.info ] && . ${GITHUB_WORKSPACE}/Openwrt.info
+	[ -f ${GITHUB_WORKSPACE}/Openwrt.info ] && . ${GITHUB_WORKSPACE}/Openwrt.info > /dev/null 2>&1
 	case "${TARGET_PROFILE}" in
 	x86-64)
 		if [ `grep -c "CONFIG_TARGET_IMAGES_GZIP=y" ${Home}/.config` -eq '1' ]; then
@@ -22,18 +22,17 @@ GET_TARGET_INFO() {
 		COMP2="lede"
 		ZUOZHE="Lean's"
 		if [[ "${TARGET_PROFILE}" == "x86-64" ]]; then
-			Up_Firmware="openwrt-x86-64-generic-squashfs-combined.${Firmware_sfxo}"
-			EFI_Up_Firmware="openwrt-x86-64-generic-squashfs-combined-efi.${Firmware_sfxo}"
+			Up_Firmware="openwrt-x86-64-combined-squashfs.${Firmware_sfxo}"
+			EFI_Up_Firmware="openwrt-x86-64-combined-squashfs-efi.${Firmware_sfxo}"
 			Firmware_sfx="${Firmware_sfxo}"
 		elif [[ "${TARGET_PROFILE}" == "phicomm-k3" ]]; then
 			Up_Firmware="openwrt-bcm53xx-generic-phicomm-k3-squashfs.trx"
 			Firmware_sfx="trx"
-		elif [[ "${TARGET_PROFILE}" =~ (d-team_newifi-d2|phicomm_k2p|phicomm_k2p-32m) ]]; then
+		elif [[ "${TARGET_PROFILE}" =~ (friendlyarm_nanopi-r2s|friendlyarm_nanopi-r4s|armvirt) ]]; then
+			echo "暂不支持定时自动升级固件"
+		else
 			Up_Firmware="openwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
 			Firmware_sfx="bin"
-		else
-			Up_Firmware="${Updete_firmware}"
-			Firmware_sfx="${Extension}"
 		fi
 	;;
 	"19.07") 
@@ -47,12 +46,11 @@ GET_TARGET_INFO() {
 		elif [[ "${TARGET_PROFILE}" == "phicomm-k3" ]]; then
 			Up_Firmware="openwrt-bcm53xx-phicomm-k3-squashfs.trx"
 			Firmware_sfx="trx"
-		elif [[ "${TARGET_PROFILE}" =~ (d-team_newifi-d2|k2p) ]]; then
+		elif [[ "${TARGET_PROFILE}" =~ (friendlyarm_nanopi-r2s|friendlyarm_nanopi-r4s|armvirt) ]]; then
+			echo "暂不支持定时自动升级固件"
+		else
 			Up_Firmware="openwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
 			Firmware_sfx="bin"
-		else
-			Up_Firmware="${Updete_firmware}"
-			Firmware_sfx="${Extension}"
 		fi
 	;;
 	"openwrt-18.06")
@@ -66,12 +64,11 @@ GET_TARGET_INFO() {
 		elif [[ "${TARGET_PROFILE}" == "phicomm-k3" ]]; then
 			Up_Firmware="immortalwrt-bcm53xx-phicomm-k3-squashfs.trx"
 			Firmware_sfx="trx"
-		elif [[ "${TARGET_PROFILE}" =~ (d-team_newifi-d2|phicomm_k2p) ]]; then
-			Up_Firmware="immortalwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
-			Firmware_sfx="bin"
+		elif [[ "${TARGET_PROFILE}" =~ (friendlyarm_nanopi-r2s|friendlyarm_nanopi-r4s|armvirt) ]]; then
+			echo "暂不支持定时自动升级固件"
 		else
-			Up_Firmware="${Updete_firmware}"
-			Firmware_sfx="${Extension}"
+			Up_Firmware="openwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
+			Firmware_sfx="bin"
 		fi
 	;;
 	"openwrt-21.02")
@@ -85,12 +82,11 @@ GET_TARGET_INFO() {
 		elif [[ "${TARGET_PROFILE}" == "phicomm-k3" ]]; then
 			Up_Firmware="immortalwrt-bcm53xx-phicomm-k3-squashfs.trx"
 			Firmware_sfx="trx"
-		elif [[ "${TARGET_PROFILE}" =~ (d-team_newifi-d2|phicomm_k2p) ]]; then
-			Up_Firmware="immortalwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
-			Firmware_sfx="bin"
+		elif [[ "${TARGET_PROFILE}" =~ (friendlyarm_nanopi-r2s|friendlyarm_nanopi-r4s|armvirt) ]]; then
+			echo "暂不支持定时自动升级固件"
 		else
-			Up_Firmware="${Updete_firmware}"
-			Firmware_sfx="${Extension}"
+			Up_Firmware="openwrt-${TARGET_BOARD}-${TARGET_SUBTARGET}-${TARGET_PROFILE}-squashfs-sysupgrade.bin"
+			Firmware_sfx="bin"
 		fi
 	;;
 	esac
@@ -140,42 +136,49 @@ Diy_Part3() {
 		EFI_Firmware="${EFI_Up_Firmware}"
 		AutoBuild_Firmware="${COMP1}-${Openwrt_Version}"
 		if [ -f "${Legacy_Firmware}" ];then
+			mkdir -p GDfirmware
 			_MD5=$(md5sum ${Legacy_Firmware} | cut -d ' ' -f1)
 			_SHA256=$(sha256sum ${Legacy_Firmware} | cut -d ' ' -f1)
-			touch ${Home}/bin/Firmware/${AutoBuild_Firmware}.detail
-			echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > ${Home}/bin/Firmware/${AutoBuild_Firmware}-Legacy.detail
-			cp ${Legacy_Firmware} ${Home}/bin/Firmware/${AutoBuild_Firmware}-Legacy.${Firmware_sfx}
-			echo "Legacy Firmware is detected !"
+			touch ./GDfirmware/${AutoBuild_Firmware}.detail
+			echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > ./GDfirmware/${AutoBuild_Firmware}-Legacy.detail
+			cp ${Legacy_Firmware} ./GDfirmware/${AutoBuild_Firmware}-Legacy.${Firmware_sfx}
+			find ./GDfirmware -name "*" -type f -size 0c | xargs -n 1 rm -f
+			tar -zcf ${AutoBuild_Firmware}-Legacy.tar.gz GDfirmware --remove-files
+			mv ${AutoBuild_Firmware}-Legacy.tar.gz ${Home}/bin/Firmware
 		fi
 		if [ -f "${EFI_Firmware}" ];then
+			mkdir -p GDfirmware
 			_MD5=$(md5sum ${EFI_Firmware} | cut -d ' ' -f1)
 			_SHA256=$(sha256sum ${EFI_Firmware} | cut -d ' ' -f1)
-			touch ${Home}/bin/Firmware/${AutoBuild_Firmware}-UEFI.detail
-			echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > ${Home}/bin/Firmware/${AutoBuild_Firmware}-UEFI.detail
-			cp ${EFI_Firmware} ${Home}/bin/Firmware/${AutoBuild_Firmware}-UEFI.${Firmware_sfx}
-			echo "UEFI Firmware is detected !"
+			touch ./GDfirmware/${AutoBuild_Firmware}-UEFI.detail
+			echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > ./GDfirmware/${AutoBuild_Firmware}-UEFI.detail
+			cp ${EFI_Firmware} ./GDfirmware/${AutoBuild_Firmware}-UEFI.${Firmware_sfx}
+			find ./GDfirmware -name "*" -type f -size 0c | xargs -n 1 rm -f
+			tar -zcf ${AutoBuild_Firmware}-UEFI.tar.gz GDfirmware --remove-files
+			mv ${AutoBuild_Firmware}-UEFI.tar.gz ${Home}/bin/Firmware
 		fi
 	;;
 	*)
-		cd ${Home}
-		Default_Firmware=""${Up_Firmware}""
-		AutoBuild_Firmware="${COMP1}-${Openwrt_Version}.${Firmware_sfx}"
-		AutoBuild_Detail="${COMP1}-${Openwrt_Version}.detail"
-		echo "Firmware: ${AutoBuild_Firmware}"
-		cp ${Firmware_Path}/*${Default_Firmware} bin/Firmware/${AutoBuild_Firmware}
-		_MD5=$(md5sum bin/Firmware/${AutoBuild_Firmware} | cut -d ' ' -f1)
-		_SHA256=$(sha256sum bin/Firmware/${AutoBuild_Firmware} | cut -d ' ' -f1)
-		echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > bin/Firmware/${AutoBuild_Detail}
+		cd ${Firmware_Path}
+		mkdir -p GDfirmware
+		Default_Firmware="${Up_Firmware}"
+		AutoBuild_Firmware="${COMP1}-${Openwrt_Version}"
+		_MD5=$(md5sum ${Default_Firmware} | cut -d ' ' -f1)
+		_SHA256=$(sha256sum ${Default_Firmware} | cut -d ' ' -f1)
+		touch ./GDfirmware/${AutoBuild_Firmware}.detail
+		echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > ./GDfirmware/${AutoBuild_Firmware}.detail
+		cp ${Default_Firmware} ./GDfirmware/${AutoBuild_Firmware}.${Firmware_sfx}
+		find ./GDfirmware -name "*" -type f -size 0c | xargs -n 1 rm -f
+		tar -zcf ${AutoBuild_Firmware}.tar.gz GDfirmware --remove-files
+		mv ${AutoBuild_Firmware}.tar.gz ${Home}/bin/Firmware
 	;;
 	esac
 	cd ${Home}
-	echo "Actions Avaliable: $(df -h | grep "/dev/root" | awk '{printf $4}')"
 }
 
 Mkdir() {
 	_DIR=${1}
 	if [ ! -d "${_DIR}" ];then
-		echo "[$(date "+%H:%M:%S")] Creating new folder [${_DIR}] ..."
 		mkdir -p ${_DIR}
 	fi
 	unset _DIR

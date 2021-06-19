@@ -240,6 +240,11 @@ sed -i 's/CONFIG_PACKAGE_/、/g' Plug-2
 sed -i 's/=y/\"/g' Plug-2
 awk '{print "	" $0}' Plug-2 > Plug-in
 sed -i "s/^/TIME g \"/g" Plug-in
+cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c > CPU
+cat /proc/cpuinfo | grep "cpu cores" | uniq >> CPU
+sed -i 's|[[:space:]]||g; s|^.||' CPU && sed -i 's|CPU||g; s|pucores:||' CPU
+CPUNAME="$(awk 'NR==1' CPU)" && CPUCORES="$(awk 'NR==2' CPU)"
+rm -rf CPU
 find . -name 'LICENSE' -o -name 'README' -o -name 'README.md' | xargs -i rm -rf {}
 find . -name 'CONTRIBUTED.md' -o -name 'README_EN.md' -o -name 'DEVICE_NAME' | xargs -i rm -rf {}
 }
@@ -372,6 +377,13 @@ fi
 echo
 TIME z " 系统空间      类型   总数  已用  可用 使用率"
 cd ../ && df -hT $PWD && cd openwrt
+echo
+TIME z "  本服务器的CPU型号为[${CPUNAME}]"
+echo
+TIME z "  在此系统上使用核心数为[ ${CPUCORES} ],线程数为[ $(nproc) ]"
+echo
+TIME z "  下面将使用[$(nproc)线程编译固件]"
+echo
 echo
 if [ -n "$(ls -A "${Home}/Chajianlibiao" 2>/dev/null)" ]; then
 	echo
